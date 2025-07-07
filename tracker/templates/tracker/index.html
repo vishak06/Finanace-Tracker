@@ -1,0 +1,93 @@
+{% extends "tracker/layout.html" %}
+
+{% block body %}
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 justify-content-center mx-2 g-4">
+        <div class="col d-flex justify-content-center">
+            <div class="card border border-success border-3 rounded-4 hover-grow" style="width: 25rem; min-height: 275px;">
+                <div class="card-body">
+                    <a href="{% url 'index' %}" style="text-decoration: none; color: black;">
+                        <h5 class="card-title">Your Personal Finance Tracker<i class="bi bi-caret-right-fill"></i></h5>
+                    </a>
+                    <hr>
+                    <p class="card-text">This platform is more than just a tracker — it’s your all-in-one personal finance assistant. Get a better view of your income, spending, and savings. Visualize where your money goes, set financial goals, and receive meaningful insights to build better financial habits over time.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col d-flex justify-content-center">
+            <div class="card border border-success border-3 rounded-4 hover-grow" style="width: 25rem; min-height: 275px;">
+                <div class="card-body">
+                    <a href="{% url 'transaction' %}" style="text-decoration: none; color: black;">
+                        <h5 class="card-title">Add New Transactions<i class="bi bi-caret-right-fill"></i></h5>
+                    </a>
+                    <hr>
+                    <p class="card-text">Stay on top of your finances by adding every income or expense as it happens. Whether it’s a salary credit, a quick coffee, or a major purchase, you can record it instantly with relevant details like amount, category, date, and description. The more you track, the better insights you gain about your spending habits.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col d-flex justify-content-center">
+            <div class="card border border-success border-3 rounded-4 hover-grow" style="width: 25rem; min-height: 275px;">
+                <div class="card-body">
+                    <a href="{% url 'dashboard' %}" style="text-decoration: none; color: black;">
+                        <h5 class="card-title">View and Filter Transactions<i class="bi bi-caret-right-fill"></i></h5>
+                    </a>
+                    <hr>
+                    <p class="card-text">Explore a complete history of your financial activity in one place. Our intuitive transaction log allows you to filter entries by date, category, or type (credited/debited), making it easy to spot trends, unusual expenses, or recurring patterns. Quickly understand where your money goes and how it changes over time.</p>
+                </div>
+            </div>
+        </div> 
+
+        <div class="col d-flex justify-content-center">
+            <div class="card border border-success border-3 rounded-4 hover-grow" style="width: 25rem; min-height: 275px;">
+                <div class="card-body">
+                    <a href="{% url 'profile' %}" style="text-decoration: none; color: black;">
+                        <h5 class="card-title">Manage Your Profile<i class="bi bi-caret-right-fill"></i></h5>
+                    </a>
+                    <hr>
+                    <p class="card-text">Maintain your personal details with ease. You can update your username, name, or change your password whenever necessary to keep your account secure and personalized. While your email stays locked for safety, everything else is in your control, ensuring your profile reflects who you are.</p>
+                </div>
+            </div>
+        </div>
+
+        {% if user.is_authenticated %}
+            <div class="col d-flex justify-content-center">
+                <div class="card border border-success border-3 rounded-4 hover-grow" style="width: 25rem; min-height: 275px;">
+                    <div class="card-body">
+                        <a href="{% url 'logout' %}" style="text-decoration: none; color: black;">
+                            <h5 class="card-title">Secure Logout Anytime<i class="bi bi-caret-right-fill"></i></h5>
+                        </a>
+                        <hr>
+                        <p class="card-text">You’re currently logged in and enjoying full access to your financial dashboard. When you're done managing your expenses or checking your insights, simply click the logout button to end your session securely. This keeps your data safe, especially when using a shared or public device.</p>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col d-flex justify-content-center">
+                <div class="card border border-success border-3 rounded-4 hover-grow" style="width: 25rem; min-height: 275px;">
+                    <div class="card-body">
+                        <a href="{% url 'login' %}" style="text-decoration: none; color: black;">
+                            <h5 class="card-title">Login to Access Your Dashboard<i class="bi bi-caret-right-fill"></i></h5>
+                        </a>
+                        <hr>
+                        <p class="card-text">Already have an account? Log in now to access your personalized dashboard, where you can track your expenses, analyze trends, and set financial goals. Logging in gives you full control over your transactions, profile, and reports — all in one place. Your financial journey awaits, let’s pick up where you left off.</p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="col d-flex justify-content-center">
+            <div class="card border border-success border-3 rounded-4 hover-grow" style="width: 25rem; min-height: 275px;">
+                <div class="card-body">
+                    <a href="{% url 'register' %}" style="text-decoration: none; color: black;">
+                        <h5 class="card-title">Create a New Account<i class="bi bi-caret-right-fill"></i></h5>
+                    </a>
+                    <hr>
+                    <p class="card-text">Start your financial journey by creating a free account in seconds. With just a few details, you’ll unlock full access to all features—transaction tracking, category breakdowns, spending summaries, and more. It’s simple, secure, and built to help you take control of your money.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+{% endblock %}

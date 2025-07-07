@@ -1,0 +1,73 @@
+body
+{
+    background-image: url('background.png');
+    background-attachment: fixed;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+@media (max-width: 768px) {
+    body {
+        background-image: url('backgroundM.png');
+    }
+}
+
+.body
+{
+    margin-top: 84px;
+    padding: 10px;
+    padding-top: 0px;
+}
+
+#title
+{
+    font-size: 25px;
+}
+
+.form-control:focus 
+{
+  border-color: #198754;
+  box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+}
+
+.form-label
+{
+    font-size: 18px;
+}
+
+.disabled-link 
+{
+  pointer-events: none;                         
+  cursor: not-allowed;           
+  opacity: 0.3;                  
+  text-decoration: none;         
+}
+
+.card 
+{
+    transition: transform 0.3s ease-in-out;
+}
+
+.hover-grow:hover 
+{
+    transform: scale(1.05);
+}
+
+.dropdown-item:active 
+{
+    background-color: #198754; 
+    color: white;
+}
+
+.green-select:focus 
+{
+    border-color: #198754;
+    box-shadow: 0 0 0 0; 
+}
+
+.green-select option:hover 
+{
+    background-color: #198754; 
+    color: #145c32;
+}

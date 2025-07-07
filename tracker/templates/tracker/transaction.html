@@ -1,0 +1,114 @@
+{% extends 'tracker/layout.html' %}
+
+{% block body %}
+
+    <div class="container-fluid">
+        <div class="row row-cols-1 row-cols-md-1 row-cols-lg-2 justify-content-center align-items-center mx-2 g-4">
+            <div class="col" style="min-width: 24rem;">
+                <form action="{% url 'transaction' %}" method="POST" class="bg-white p-4 border border-success border-3 rounded-4 shadow-lg">
+                    <h3>Add Transactions</h3><br>
+
+                    <div class="text-center mb-3">
+                        {% if message %}
+                            <h5 style="color: red;">{{ message }}</h5>
+                        {% endif %}
+                    </div>
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label" for="amount">Amount</label>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text"><i class="bi bi-currency-rupee"></i></span>
+                            <input class="form-control" type="text" id="amount" name="rupee" required>
+                            <span class="input-group-text">.</span>
+                            <input class="form-control-plaintext border ps-2" type="text" name="paise" value="00" style="width: 60px;">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="type">Transaction Type</label>
+                        <div class="input-group">
+                            <select class="form-select" id="type" name="type" required>
+                                <option selected disabled>Select</option>
+                                <option value="CREDITED">Credited</option>
+                                <option value="DEBITED">Debited</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="choice">Categories</label>
+                        <div class="input-group">
+                            <label class="input-group-text" for="choice">Options</label>
+                            <select class="form-select" id="choice" name="choice" size="5" required>
+                                {% for value, label in categories %}
+                                    <option value="{{ value }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="description">Description</label>
+                        <textarea class="form-control" name="description"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="date" class="form-label">Transaction Date</label>
+                        <input type="date" class="form-control" id="date" name="date" required>
+                    </div>
+
+                    <div class="d-flex justify-content-center mt-4">
+                        <input class="btn btn-success" type="submit" value="Add">
+                    </div>
+
+                </form>
+            </div>
+
+            <div class="col" style="min-width: 24rem;">
+                <div class="bg-white p-4 pb-5 border border-success border-3 rounded-4 shadow-lg" style="min-height: 400px;">
+                    <div class="d-flex justify-content-between">
+                        <h3>Recent Transactions</h3>
+                        {% if recent %}
+                            <a class="btn btn-success" href="{% url 'dashboard' %}">View All</a>
+                        {% endif %}
+                    </div>
+                    <br>
+
+                    {% if recent %}
+                        {% for transaction in recent %}
+                            <div class="card p-3" style="min-height: 100px;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            {{ transaction.date.day}} {{transaction.date|date:"F"}}
+                                        </div>
+                                        <div class="card-body p-2 d-flex justify-content-center align-items-center">
+                                            {{ transaction.date.year }}
+                                        </div>
+                                    </div>
+                                
+                                    <div class="text-center">
+                                        <strong>{{ transaction.category }}</strong>
+                                        {% if transaction.description %}
+                                            <p>{{ transaction.description }}</p>
+                                        {% endif %}
+                                    </div>
+
+                                    {% if transaction.transaction == 'CREDITED' %}
+                                        <div style="color: green;">+{{ transaction.amount }}</div>
+                                    {% else %}
+                                        <div style="color: red;">-{{ transaction.amount }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p>No recent transactions</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
