@@ -188,3 +188,6 @@ def dashboard(request):
         'saving_labels': json.dumps(saving_labels),
         'saving_values': json.dumps(saving_values),
     })
+
+def custom_404(request, exception):
+    return render(request, "tracker/404.html", status=404)

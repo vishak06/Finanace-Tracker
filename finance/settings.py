@@ -90,7 +90,7 @@ WSGI_APPLICATION = 'finance.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 
-USE_SQLITE = os.environ.get("USE_SQLITE", "false").lower() == "true"
+USE_SQLITE = os.environ.get("USE_SQLITE", "true").lower() == "true"
 
 if USE_SQLITE:
     DATABASES = {
