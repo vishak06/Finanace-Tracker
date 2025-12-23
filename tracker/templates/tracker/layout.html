@@ -1,0 +1,87 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="{% static 'tracker/styles.css' %}" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Finance Tracker</title>
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-success fixed-top">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDarkNavbar" aria-controls="offcanvasDarkNavbar" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <a class="navbar-brand" id="title" href="{% url 'index' %}"><strong>Finance Tracker</strong></a>
+
+            {% if user.is_authenticated %}
+                <a class="fs-3" href="{% url 'profile' %}">
+                    <i class="bi bi-person-circle text-white"></i>
+                </a>
+            {% else %}
+                <a class="fs-3" href="{% url 'profile' %}">
+                    <i class="bi bi-person-fill-slash text-white"></i>
+                </a>
+            {% endif %}
+
+
+
+            <div class="offcanvas offcanvas-start text-bg-success" style="width: 300px;" tabindex="-1" id="offcanvasDarkNavbar" aria-labelledby="offcanvasDarkNavbarLabel">
+                <div class="offcanvas-header">
+                    <h3 class="offcanvas-title" id="offcanvasDarkNavbarLabel">Menu</h3>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <ul class="navbar-nav justify-content-end flex-grow-1 pe-3" style="font-size:large;">
+                        <li class="nav-item">
+                            <a class="nav-link" aria-current="page" href="{% url 'index' %}">Home</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'dashboard' %}" class="nav-link {% if not user.is_authenticated %}disabled-link{% endif %}">
+                                Dashboard
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'transaction' %}" class="nav-link {% if not user.is_authenticated %}disabled-link{% endif %}">
+                                Transactions
+                            </a>
+                        </li>
+
+                        <hr class="text-white">
+
+                        {% if user.is_authenticated %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'profile' %}">Profile</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'login' %}">Login</a>
+                            </li>
+                        {% endif %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'register' %}">Register</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="body">
+        {% block body %}
+        {% endblock %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

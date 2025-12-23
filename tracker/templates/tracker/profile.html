@@ -1,0 +1,189 @@
+{% extends 'tracker/layout.html' %}
+
+{% block body %}
+
+    <div class="container-fluid">
+        <div class="row row-cols-1 row-cols-md-1 row-cols-lg-2 justify-content-center align-items-center mx-3 g-4">
+            <div class="col" style="min-width: 24rem;">
+                <form action="{% url 'profile' %}" method="POST" id="profile-form" class="bg-white p-4 border border-success border-3 rounded-4 shadow-lg">
+                    <h3>Profile</h3><br>
+
+                    <div class="text-center mb-3">
+                        {% if message %}
+                            <h5 style="color: red;">{{ message }}</h5>
+                        {% endif %}
+                    </div>
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label" for="username">Username</label>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+                            <input class="form-control" type="text" id="username" name="username" value="{{ user.username }}" disabled required>
+                            <span class="input-group-text" style="cursor: pointer;" onclick="enableEdit('username')"><i class="bi bi-pen-fill"></i></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="email">Email</label>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
+                            <input class="form-control" type="email" id="email" value="{{ user.email }}" disabled required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="firstname">First Name</label>
+                        <div class="input-group mb-3">
+                            <input class="form-control" type="text" id="firstname" name="firstname" value="{{ user.first_name }}" disabled>
+                            {% if user.first_name %}
+                                <span class="input-group-text" style="cursor: pointer;" onclick="enableEdit('firstname')"><i class="bi bi-pen-fill"></i></span>
+                            {% else %}
+                                <span class="input-group-text" style="cursor: pointer;" onclick="enableEdit('firstname')"><i class="bi bi-plus-lg"></i></span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="lastname">Last Name</label>
+                        <div class="input-group mb-3">
+                            <input class="form-control" type="text" id="lastname" name="lastname" value="{{ user.last_name }}" disabled>
+                            {% if user.last_name %}
+                                <span class="input-group-text" style="cursor: pointer;" onclick="enableEdit('lastname')"><i class="bi bi-pen-fill"></i></span>
+                            {% else %}
+                                <span class="input-group-text" style="cursor: pointer;" onclick="enableEdit('lastname')"><i class="bi bi-plus-lg"></i></span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="password">Password</label>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                            <input class="form-control" type="password" id="password" name="password" value="**********" disabled required>
+                            <span class="input-group-text" style="cursor: pointer;" onclick="passwordEdit()"><i class="bi bi-pen-fill"></i></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3" id="confirm-password" style="display: none;">
+                        <label class="form-label" for="confirm_password">Confirm Password</label>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                            <input class="form-control" type="password" id="confirm_password" name="confirm_password" placeholder="Re-enter Password">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="date" class="form-label">Date Joined</label>
+                        <input type="date" class="form-control" id="date" name="date" value="{{ user.date_joined|date:'Y-m-d' }}" disabled>
+                    </div>
+
+                    <div class="d-flex justify-content-center mt-4">
+                        <button type="submit" class="btn btn-success" id="submit" style="display: none;">Update</button>
+                    </div>
+
+                </form>
+            </div>
+
+            <div class="col" style="min-width: 24rem;">
+                <div class="bg-white p-4 pb-5 border border-success border-3 rounded-4 shadow-lg" style="min-height: 400px;">
+                    <div class="d-flex justify-content-between">
+                        <h3>Recent Transactions</h3>
+                        {% if recent %}
+                            <a class="btn btn-success" href="{% url 'dashboard' %}">View All</a>
+                        {% endif %}
+                    </div>
+                    <br>
+
+                    {% if recent %}
+                        {% for transaction in recent %}
+                            <div class="card p-3" style="min-height: 100px;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            {{ transaction.date.day}} {{transaction.date|date:"F"}}
+                                        </div>
+                                        <div class="card-body p-2 d-flex justify-content-center align-items-center">
+                                            {{ transaction.date.year }}
+                                        </div>
+                                    </div>
+                                
+                                    <div class="text-center">
+                                        <strong>{{ transaction.category }}</strong>
+                                        {% if transaction.description %}
+                                            <p>{{ transaction.description }}</p>
+                                        {% endif %}
+                                    </div>
+
+                                    {% if transaction.transaction == 'CREDITED' %}
+                                        <div style="color: green;">+{{ transaction.amount }}</div>
+                                    {% else %}
+                                        <div style="color: red;">-{{ transaction.amount }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p>No recent transactions</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function enableEdit(id)
+        {
+            const input = document.getElementById(id);
+            input.disabled = false;
+            input.focus();
+
+            const submit = document.getElementById('submit');
+            submit.style.display = "inline-block";
+        }
+
+        function passwordEdit()
+        {
+            const passwordInput = document.getElementById("password");
+            const confirmInput = document.getElementById("confirm_password");
+            const confirmGroup = document.getElementById("confirm-password");
+            const submit = document.getElementById("submit");
+
+            passwordInput.disabled = !passwordInput.disabled;
+
+            if (!passwordInput.disabled)
+            {
+                passwordInput.value = "";
+                confirmGroup.style.display = "block";
+                confirmInput.required = true;
+                submit.style.display = "inline-block";
+            }
+            else
+            {
+                passwordInput.value = "**********";
+                confirmGroup.style.display = "none";
+                confirmInput.required = false;
+                confirmGroup.style.display = "none";
+
+                const inputs = document.querySelectorAll('.form-control');
+                let anyEnabled = false;
+                inputs.forEach(field => {
+                    if (!field.disabled && field.type !== "date") {
+                        anyEnabled = true;
+                    }
+                });
+
+                submit.style.display = anyEnabled ? "inline-block" : "none";
+            }
+        }
+
+        document.getElementById("profile-form").addEventListener("submit", function (e) {
+        const fields = this.querySelectorAll("[disabled]");
+        fields.forEach(field => {
+            field.removeAttribute("disabled");
+        });
+    });
+
+    </script>
+
+{% endblock %}
