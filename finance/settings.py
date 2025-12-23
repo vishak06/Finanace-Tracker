@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-9_0u2tw-%4gcttby)2lxp&$a!$l7=zth20al8)!$1zr%6a9m6^'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.1.102', 'finanace-tracker-t8to.onrender.com']
 
