@@ -2,6 +2,121 @@
 
 {% block body %}
 
+    <style>
+        /* Transaction card responsive tweaks */
+        .txn-card { position: relative; }
+        .txn-amount { margin-right:56px; display:inline-block; }
+        .txn-menu { right:14px; top:50%; transform:translateY(-50%); z-index:3; }
+        .txn-card { margin-bottom: 1rem; }
+
+        /* Layout helpers for txn content */
+        .txn-content { display:flex; gap:1rem; align-items:center; }
+        .txn-meta { flex:1; }
+
+        /* Edit row helper */
+        .txn-edit-row { display:flex; gap:8px; align-items:center; width:100%; }
+        .txn-edit-row .card { flex: 0 0 72px; }
+        .txn-edit-row .txn-rupee-input { width: 70px; }
+        .txn-edit-row .txn-paise-input { width: 56px; }
+        .txn-edit-actions { display:flex; gap:8px; justify-content:center; align-items:center; }
+
+        /* Centering Save and Cancel buttons */
+        .transaction-form-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        /* Adjusting spacing between elements */
+        .transaction-card {
+            display: flex;
+            flex-direction: column;
+            gap: 5px; /* Increased spacing between date, category, and amount */
+            padding: 10px;
+        }
+
+        .transaction-card .amount-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 5px; /* Reduced spacing between amount and options button */
+        }
+
+        /* Responsive design for small screens */
+        @media (max-width: 768px) {
+            /* Arrange the three main components horizontally with space between them */
+            .txn-content {
+                flex-direction: row !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                gap: 18px !important;
+                padding-top: 12px; /* small top padding so the options button won't overlap */
+            }
+
+            /* Keep the options button pinned to the top-right of the card */
+            .txn-menu {
+                position: absolute !important;
+                top: 8px !important;
+                right: 8px !important;
+                transform: none !important;
+            }
+
+            /* Ensure the amount does not use the large right margin and stays compact */
+            .txn-amount {
+                margin-right: 0 !important;
+                flex: 0 0 auto !important;
+                order: 3;
+            }
+
+            /* Let the meta (category + description) expand and center its contents */
+            .txn-meta {
+                flex: 1 1 auto !important;
+                text-align: center !important;
+                order: 2;
+            }
+
+            /* Ensure the date card stays left-most */
+            .txn-content > .card { order: 1; }
+        }
+
+        @media (max-width: 576px) {
+            .txn-amount { margin-right:12px; }
+            .txn-menu { right:8px; top:8px; transform:none; }
+            .txn-edit-row { flex-direction:column; align-items:stretch; }
+            .txn-edit-row .card { flex: 0 0 auto; width: 100%; }
+            .txn-edit-row .txn-rupee-input, .txn-edit-row .txn-paise-input { width: 100%; }
+            .txn-edit-row .txn-category-input, .txn-edit-row .txn-type-input, .txn-edit-row .txn-description-input { width:100%; }
+            .txn-edit-actions { justify-content:space-between; }
+        }
+
+        /* Large screens: stack Save/Cancel vertically so date block has space */
+        @media (min-width: 992px) {
+            /* Keep row layout but allow vertical centering of the buttons */
+            .txn-edit-row { align-items: flex-start; }
+
+            /* Stack Save/Cancel vertically and center them vertically relative to the row */
+            .transaction-form-buttons {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                margin-top: 0;
+                align-items: center;
+                justify-content: center;
+                align-self: center; /* centers the button column vertically within the txn-edit-row */
+            }
+
+            /* Increase width of the date card so date is visible */
+            .txn-edit-row .card {
+                flex: 0 0 110px;
+                width: 110px;
+            }
+
+            /* give the form column a bit more room when buttons stack */
+            .txn-edit-row .px-2 { flex: 1 1 auto; }
+        }
+    </style>
+
     <div class="container-fluid">
         <div class="row row-cols-1 row-cols-md-1 row-cols-lg-2 justify-content-center align-items-center mx-2 g-4">            
             <div class="col" style="min-width: 24rem;">
@@ -34,29 +149,50 @@
 
                     {% if recent %}
                         {% for transaction in recent %}
-                            <div class="card p-3" style="min-height: 100px;">
-                                <div class="d-flex justify-content-between align-items-center">
+                               <div class="card p-3 txn-card position-relative" style="min-height: 100px;" 
+                                 data-id="{{ transaction.id }}"
+                                 data-amount="{{ transaction.amount }}"
+                                 data-type="{{ transaction.transaction }}"
+                                 data-category="{{ transaction.category }}"
+                                 data-description="{{ transaction.description|default_if_none:'' }}"
+                                 data-date="{{ transaction.date }}">
+
+                                <div class="txn-content d-flex justify-content-between align-items-center">
                                     <div class="card">
-                                        <div class="card-header">
+                                        <div class="card-header txn-date">
                                             {{ transaction.date.day }} {{ transaction.date|date:"M" }}
                                         </div>
-                                        <div class="card-body p-2 d-flex justify-content-center align-items-center">
+                                        <div class="card-body p-2 d-flex justify-content-center align-items-center txn-year">
                                             {{ transaction.date.year }}
                                         </div>
                                     </div>
                                 
-                                    <div class="text-center">
-                                        <strong>{{ transaction.category }}</strong>
+                                    <div class="text-center txn-meta">
+                                        <strong class="txn-category">{{ transaction.category }}</strong>
                                         {% if transaction.description %}
-                                            <p>{{ transaction.description }}</p>
+                                            <p class="txn-description">{{ transaction.description }}</p>
                                         {% endif %}
                                     </div>
 
-                                    {% if transaction.transaction == 'CREDITED' %}
-                                        <div style="color: green;">+{{ transaction.amount }}</div>
-                                    {% else %}
-                                        <div style="color: red;">-{{ transaction.amount }}</div>
-                                    {% endif %}
+                                    <div class="txn-amount" style="margin-right:56px; display:inline-block;">
+                                        {% if transaction.transaction == 'CREDITED' %}
+                                            <div style="color: green;">+{{ transaction.amount }}</div>
+                                        {% else %}
+                                            <div style="color: red;">-{{ transaction.amount }}</div>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="txn-menu position-absolute" style="right:14px; top:50%; transform:translateY(-50%); z-index:3;">
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="bi bi-three-dots-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li><a class="dropdown-item txn-edit-btn" href="#">Edit</a></li>
+                                                <li><a class="dropdown-item txn-delete-btn" href="#">Delete</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         {% endfor %}
@@ -158,4 +294,215 @@
         });
     </script>
 
+    <script>
+        // CSRF helper
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        document.addEventListener('click', function (e) {
+            // Edit button
+            if (e.target.closest('.txn-edit-btn')) {
+                e.preventDefault();
+                const card = e.target.closest('.txn-card');
+                enterEditMode(card);
+            }
+
+            // Delete button
+            if (e.target.closest('.txn-delete-btn')) {
+                e.preventDefault();
+                const card = e.target.closest('.txn-card');
+                deleteTransaction(card);
+            }
+
+            // Save / Cancel inside card
+            if (e.target.closest('.txn-save-btn')) {
+                e.preventDefault();
+                const card = e.target.closest('.txn-card');
+                saveEdit(card);
+            }
+
+            if (e.target.closest('.txn-cancel-btn')) {
+                e.preventDefault();
+                const card = e.target.closest('.txn-card');
+                cancelEdit(card);
+            }
+        });
+
+        function enterEditMode(card) {
+            const amount = parseFloat(card.dataset.amount || 0).toFixed(2);
+            const [rupee, paise] = amount.split('.');
+            const type = card.dataset.type || '';
+            const category = card.dataset.category || '';
+            const description = card.dataset.description || '';
+            const date = card.dataset.date || '';
+
+            const categoriesOptions = `
+                {% for cat in categories %}
+                    <option value="{{ cat }}" ${category === "{{ cat }}" ? 'selected' : ''}>{{ cat }}</option>
+                {% endfor %}
+            `;
+
+            const formHtml = `
+                <div class="txn-edit-row">
+                    <div class="card">
+                        <div class="card-header txn-date-edit">
+                            <input type="date" class="form-control form-control-sm txn-date-input" value="${date}">
+                        </div>
+                        <div class="card-body p-2 d-flex justify-content-center align-items-center txn-year-edit">
+                            <input type="text" class="form-control form-control-sm txn-year-input" value="${new Date(date).getFullYear() || ''}" readonly>
+                        </div>
+                    </div>
+
+                    <div class="px-2" style="flex:1;">
+                        <div class="mb-2 d-flex gap-2">
+                            <select class="form-select form-select-sm txn-type-input" style="width:120px;">
+                                <option value="CREDITED" ${type === 'CREDITED' ? 'selected' : ''}>Credited</option>
+                                <option value="DEBITED" ${type === 'DEBITED' ? 'selected' : ''}>Debited</option>
+                            </select>
+
+                            <div style="display:flex; gap:6px; align-items:center;">
+                                <input type="number" min="0" class="form-control form-control-sm txn-rupee-input" value="${rupee}">
+                                <input type="number" min="0" max="99" class="form-control form-control-sm txn-paise-input" value="${paise}">
+                            </div>
+                        </div>
+
+                        <div class="mb-2">
+                            <select class="form-select form-select-sm txn-category-input">
+                                ${categoriesOptions}
+                            </select>
+                        </div>
+                        <div>
+                            <input type="text" class="form-control form-control-sm txn-description-input" value="${description}">
+                        </div>
+                    </div>
+
+                    <!-- Centering Save and Cancel buttons -->
+                    <div class="transaction-form-buttons">
+                        <button type="submit" class="btn btn-success txn-save-btn">Save</button>
+                        <button type="button" class="btn btn-secondary txn-cancel-btn">Cancel</button>
+                    </div>
+                </div>
+            `;
+
+            const content = card.querySelector('.txn-content');
+            content.dataset.original = content.innerHTML;
+            content.innerHTML = formHtml;
+        }
+
+        function cancelEdit(card) {
+            const content = card.querySelector('.txn-content');
+            if (content.dataset.original) {
+                content.innerHTML = content.dataset.original;
+                delete content.dataset.original;
+            }
+        }
+
+        async function saveEdit(card) {
+            const id = card.dataset.id;
+            const content = card.querySelector('.txn-content');
+
+            const rupee = content.querySelector('.txn-rupee-input').value || '0';
+            const paise = content.querySelector('.txn-paise-input').value || '00';
+            const type = content.querySelector('.txn-type-input').value;
+            const category = content.querySelector('.txn-category-input').value;
+            const description = content.querySelector('.txn-description-input').value;
+            const date = content.querySelector('.txn-date-input').value;
+
+            const formData = new FormData();
+            formData.append('rupee', rupee);
+            formData.append('paise', paise);
+            formData.append('type', type);
+            formData.append('category', category);
+            formData.append('description', description);
+            formData.append('date', date);
+
+            const csrftoken = getCookie('csrftoken');
+
+            try {
+                const resp = await fetch(`/transaction/${id}/edit`, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': csrftoken },
+                    body: formData
+                });
+
+                if (!resp.ok) {
+                    const err = await resp.json().catch(() => ({}));
+                    alert(err.error || 'Failed to save');
+                    return;
+                }
+
+                const data = await resp.json();
+                // update card dataset and UI
+                card.dataset.amount = data.amount;
+                card.dataset.type = data.transaction;
+                card.dataset.category = data.category;
+                card.dataset.description = data.description || '';
+                card.dataset.date = `${data.year}-${String(new Date(data.month + ' 1').getMonth()+1).padStart(2,'0')}-${String(data.day).padStart(2,'0')}`;
+
+                // rebuild display
+                const displayHtml = `
+                    <div class="card">
+                        <div class="card-header txn-date">${data.day} ${data.month}</div>
+                        <div class="card-body p-2 d-flex justify-content-center align-items-center txn-year">${data.year}</div>
+                    </div>
+                    <div class="text-center txn-meta">
+                        <strong class="txn-category">${data.category}</strong>
+                        ${data.description ? `<p class="txn-description">${data.description}</p>` : ''}
+                    </div>
+                    <div class="txn-amount" style="margin-right:56px; display:inline-block;">${data.transaction === 'CREDITED' ? `<div style="color: green;">+${data.amount}</div>` : `<div style="color: red;">-${data.amount}</div>`}</div>
+                    <div class="txn-menu position-absolute" style="right:14px; top:50%; transform:translateY(-50%); z-index:3;">
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-three-dots-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item txn-edit-btn" href="#">Edit</a></li>
+                                <li><a class="dropdown-item txn-delete-btn" href="#">Delete</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                `;
+
+                content.innerHTML = displayHtml;
+
+            } catch (err) {
+                console.error(err);
+                alert('An error occurred');
+            }
+        }
+
+        async function deleteTransaction(card) {
+            const id = card.dataset.id;
+            const csrftoken = getCookie('csrftoken');
+
+            try {
+                const resp = await fetch(`/transaction/${id}/delete`, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': csrftoken }
+                });
+
+                if (!resp.ok) {
+                    alert('Failed to delete');
+                    return;
+                }
+
+                card.remove();
+            } catch (err) {
+                console.error(err);
+                alert('An error occurred');
+            }
+        }
+    </script>
 {% endblock %}

@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
 from django.db import IntegrityError
 from django.contrib.auth import login, authenticate, logout, update_session_auth_hash
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponseBadRequest
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
@@ -167,7 +168,8 @@ def dashboard(request):
     if selected_type:
         transactions = transactions.filter(transaction=selected_type)
 
-    categories = Transaction.objects.filter(user=user).values_list('category', flat=True).distinct()
+    # show all possible categories (from model choices) so edit forms can show every option
+    categories = [choice[0] for choice in Transaction.CATEGORY_CHOICES]
 
     spending_data = transactions.filter(transaction="DEBITED").values('category').annotate(total=Sum('amount')).order_by('category')
     saving_data = transactions.filter(transaction="CREDITED").values('category').annotate(total=Sum('amount')).order_by('category')
@@ -188,6 +190,57 @@ def dashboard(request):
         'saving_labels': json.dumps(saving_labels),
         'saving_values': json.dumps(saving_values),
     })
+
+
+@login_required
+def edit_transaction(request, id):
+    if request.method != "POST":
+        return HttpResponseBadRequest("Invalid method")
+
+    txn = get_object_or_404(Transaction, pk=id, user=request.user)
+
+    rupee = request.POST.get("rupee")
+    paise = request.POST.get("paise")
+    transaction_type = request.POST.get("type")
+    category = request.POST.get("category")
+    description = request.POST.get("description")
+    date = request.POST.get("date")
+
+    if not rupee or not paise or not transaction_type or not category or not date:
+        return JsonResponse({"error": "Missing fields"}, status=400)
+
+    try:
+        amount = round((float(f"{rupee}.{paise}")), 2)
+    except ValueError:
+        return JsonResponse({"error": "Invalid amount"}, status=400)
+
+    txn.amount = amount
+    txn.transaction = transaction_type
+    txn.category = category
+    txn.description = description
+    txn.date = date
+    txn.save()
+
+    return JsonResponse({
+        "id": txn.id,
+        "day": txn.date.day,
+        "month": txn.date.strftime('%b'),
+        "year": txn.date.year,
+        "amount": float(txn.amount),
+        "category": txn.category,
+        "description": txn.description,
+        "transaction": txn.transaction,
+    })
+
+
+@login_required
+def delete_transaction(request, id):
+    if request.method != "POST":
+        return HttpResponseBadRequest("Invalid method")
+
+    txn = get_object_or_404(Transaction, pk=id, user=request.user)
+    txn.delete()
+    return JsonResponse({"success": True})
 
 def custom_404(request, exception):
     return render(request, "tracker/404.html", status=404)
