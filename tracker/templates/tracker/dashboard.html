@@ -8,17 +8,49 @@
         .txn-amount { margin-right:56px; display:inline-block; }
         .txn-menu { right:14px; top:50%; transform:translateY(-50%); z-index:3; }
         .txn-card { margin-bottom: 1rem; }
+        
+        /* Prevent date wrapping */
+        .txn-date { white-space: nowrap; }
 
         /* Layout helpers for txn content */
-        .txn-content { display:flex; gap:1rem; align-items:center; }
+        .txn-content { display:flex; gap:1rem; align-items:stretch; }
         .txn-meta { flex:1; }
+        
+        /* Make date card fill vertical space on larger screens */
+        @media (min-width: 769px) {
+            .txn-content > .card {
+                display: flex;
+                flex-direction: column;
+                min-height: 80px;
+            }
+            .txn-content > .card .card-body {
+                flex: 1;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+        }
 
         /* Edit row helper */
-        .txn-edit-row { display:flex; gap:8px; align-items:center; width:100%; }
-        .txn-edit-row .card { flex: 0 0 72px; }
+        .txn-edit-row { display:flex; gap:8px; align-items:stretch; width:100%; }
+        .txn-edit-row .card { 
+            flex: 0 0 72px;
+            display: flex;
+            align-items: stretch;
+        }
+        .txn-edit-row .card .txn-date-input {
+            height: 100%;
+        }
         .txn-edit-row .txn-rupee-input { width: 70px; }
         .txn-edit-row .txn-paise-input { width: 56px; }
         .txn-edit-actions { display:flex; gap:8px; justify-content:center; align-items:center; }
+        
+        /* Larger date input box only on large devices */
+        @media (min-width: 769px) {
+            .txn-edit-row .card .txn-date-input {
+                min-height: 80px;
+            }
+        }
 
         /* Centering Save and Cancel buttons */
         .transaction-form-buttons {
@@ -356,13 +388,8 @@
 
             const formHtml = `
                 <div class="txn-edit-row">
-                    <div class="card">
-                        <div class="card-header txn-date-edit">
-                            <input type="date" class="form-control form-control-sm txn-date-input" value="${date}">
-                        </div>
-                        <div class="card-body p-2 d-flex justify-content-center align-items-center txn-year-edit">
-                            <input type="text" class="form-control form-control-sm txn-year-input" value="${new Date(date).getFullYear() || ''}" readonly>
-                        </div>
+                    <div class="card p-2">
+                        <input type="date" class="form-control form-control-sm txn-date-input" value="${date}">
                     </div>
 
                     <div class="px-2" style="flex:1;">
